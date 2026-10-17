@@ -23,6 +23,28 @@ const messages = {
     emulatorNotFound: (path: string) => `emulator.exe が見つかりません: ${path}`,
     adbNotFound: (path: string) => `adb.exe が見つかりません: ${path}`,
 
+    // 環境変数
+    androidHomeAutoSet: (path: string) =>
+      `ANDROID_HOME を自動設定しました: ${path}`,
+    androidHomeWarnNotSet:
+      "ANDROID_HOME が未設定です。Expo/React Native 等のツールがエラーになる場合があります",
+    exportAndroidHomeHint: (path: string) =>
+      `永続化する場合は ~/.bashrc に追加: export ANDROID_HOME=${path}`,
+    exportEnvCommand: (path: string) => `export ANDROID_HOME=${path}`,
+
+    // プロキシ
+    proxyDirCreated: (dir: string) => `プロキシディレクトリを作成: ${dir}`,
+    proxyDirCreateFailed: (dir: string, err: unknown) =>
+      `ディレクトリの作成に失敗: ${dir} - ${err}`,
+    proxyInstalled: (name: string, path: string) =>
+      `${name} プロキシをインストール: ${path}`,
+    proxyInstallFailed: (err: unknown) =>
+      `プロキシのインストールに失敗: ${err}`,
+    proxyNotInPath: (dir: string) =>
+      `${dir} が PATH に含まれていません`,
+    addToBashrc: (dir: string) =>
+      `~/.bashrc に以下を追加してください:`,
+
     // AVD
     searchingAvds: "利用可能なエミュレーターを検索中...",
     avdListFailed: (err: unknown) => `AVD一覧の取得に失敗しました: ${err}`,
@@ -67,6 +89,28 @@ const messages = {
     emulatorNotFound: (path: string) => `找不到 emulator.exe: ${path}`,
     adbNotFound: (path: string) => `找不到 adb.exe: ${path}`,
 
+    // 环境变量
+    androidHomeAutoSet: (path: string) =>
+      `已自动设置 ANDROID_HOME: ${path}`,
+    androidHomeWarnNotSet:
+      "ANDROID_HOME 未设置。Expo/React Native 等工具可能会报错",
+    exportAndroidHomeHint: (path: string) =>
+      `如需永久设置,请添加到 ~/.bashrc: export ANDROID_HOME=${path}`,
+    exportEnvCommand: (path: string) => `export ANDROID_HOME=${path}`,
+
+    // 代理
+    proxyDirCreated: (dir: string) => `已创建代理目录: ${dir}`,
+    proxyDirCreateFailed: (dir: string, err: unknown) =>
+      `创建目录失败: ${dir} - ${err}`,
+    proxyInstalled: (name: string, path: string) =>
+      `已安装 ${name} 代理: ${path}`,
+    proxyInstallFailed: (err: unknown) =>
+      `安装代理失败: ${err}`,
+    proxyNotInPath: (dir: string) =>
+      `${dir} 不在 PATH 中`,
+    addToBashrc: (dir: string) =>
+      `请将以下内容添加到 ~/.bashrc:`,
+
     searchingAvds: "正在搜索可用的模拟器...",
     avdListFailed: (err: unknown) => `获取 AVD 列表失败: ${err}`,
     noAvds: "未找到可用的模拟器",
@@ -105,6 +149,28 @@ const messages = {
     exampleEnv: "e.g., export ANDROID_HOME=/mnt/c/Android/Sdk",
     emulatorNotFound: (path: string) => `emulator.exe not found: ${path}`,
     adbNotFound: (path: string) => `adb.exe not found: ${path}`,
+
+    // Environment variables
+    androidHomeAutoSet: (path: string) =>
+      `Automatically set ANDROID_HOME: ${path}`,
+    androidHomeWarnNotSet:
+      "ANDROID_HOME is not set. Tools like Expo/React Native may report errors",
+    exportAndroidHomeHint: (path: string) =>
+      `To persist, add to ~/.bashrc: export ANDROID_HOME=${path}`,
+    exportEnvCommand: (path: string) => `export ANDROID_HOME=${path}`,
+
+    // Proxy
+    proxyDirCreated: (dir: string) => `Created proxy directory: ${dir}`,
+    proxyDirCreateFailed: (dir: string, err: unknown) =>
+      `Failed to create directory: ${dir} - ${err}`,
+    proxyInstalled: (name: string, path: string) =>
+      `Installed ${name} proxy: ${path}`,
+    proxyInstallFailed: (err: unknown) =>
+      `Failed to install proxy: ${err}`,
+    proxyNotInPath: (dir: string) =>
+      `${dir} is not in PATH`,
+    addToBashrc: (dir: string) =>
+      `Please add the following to ~/.bashrc:`,
 
     searchingAvds: "Searching for available emulators...",
     avdListFailed: (err: unknown) => `Failed to get AVD list: ${err}`,

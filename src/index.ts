@@ -12,6 +12,7 @@ import { detectAndroidSdk } from "./detect-sdk.js";
 import { listAvds } from "./list-avds.js";
 import { startEmulator } from "./start-emulator.js";
 import { waitForAdbConnection } from "./wait-adb.js";
+import { installProxies, checkPathSetup } from "./install-proxy.js";
 import { t } from "./i18n.js";
 
 const program = new Command();
@@ -25,17 +26,16 @@ program
   .option("--avd <name>", "specify AVD name (skip interactive selection)")
   .option("--no-wait", "skip ADB connection wait")
   .option("--list", "list available AVDs and exit")
+  .option("--export-env", "print ANDROID_HOME export command (for eval)")
+  .option(
+    "--install-proxy",
+    "install adb/emulator proxy scripts to ~/.local/bin",
+  )
   .parse(process.argv);
 
 const opts = program.opts();
 
 async function main() {
-  console.error("");
-  console.error("==========================================");
-  console.error(t.header);
-  console.error("==========================================");
-  console.error("");
-
   // .env を読み込む（プロジェクトルートから）
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const possibleRoots = [
@@ -61,10 +61,34 @@ async function main() {
     process.exit(1);
   }
 
+  // --export-env: 環境変数 export コマンドを出力して終了（eval 用）
+  if (opts.exportEnv) {
+    console.log(t.exportEnvCommand(sdk.sdkRoot));
+    process.exit(0);
+  }
+
+  // --install-proxy: adb/emulator プロキシを ~/.local/bin にインストール
+  if (opts.installProxy) {
+    const success = installProxies(sdk.adb, sdk.emulator);
+    if (success) {
+      checkPathSetup();
+      process.exit(0);
+    } else {
+      process.exit(1);
+    }
+  }
+
+  console.error("");
+  console.error("==========================================");
+  console.error(t.header);
+  console.error("==========================================");
+  console.error("");
+
   log.success(t.sdkDetected(sdk.sdkRoot));
   log.info(t.windowsPath(wslToWindowsPath(sdk.sdkRoot)));
   log.success(t.adbPath(wslToWindowsPath(sdk.adb)));
   log.success(t.emulatorPath(wslToWindowsPath(sdk.emulator)));
+  log.info(t.androidHomeAutoSet(sdk.sdkRoot));
   console.error("");
 
   // 2. AVD一覧取得
@@ -143,6 +167,8 @@ async function main() {
   console.error("");
   log.info(t.runReactNative);
   console.error("  bun run android");
+  console.error("");
+  log.info(t.exportAndroidHomeHint(sdk.sdkRoot));
   console.error("");
 }
 

@@ -65,5 +65,11 @@ export function detectAndroidSdk(): AndroidSdkPaths | null {
     return null;
   }
 
+  // ANDROID_HOME が未設定なら、このプロセス内で自動設定
+  if (!process.env.ANDROID_HOME) {
+    process.env.ANDROID_HOME = sdkRoot;
+    process.env.ANDROID_SDK_ROOT = sdkRoot;
+  }
+
   return { sdkRoot, emulator, adb };
 }
