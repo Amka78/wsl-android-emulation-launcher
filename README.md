@@ -42,6 +42,97 @@ wsl-android-emulation-launcher --no-wait
 - Windows側にAndroid SDKがインストールされていること
 - `ANDROID_HOME` 環境変数が設定されていること（`.env` または shell設定）
 
+### Windows側の事前設定
+
+このツールを使う前に、Windows側で以下の設定が必要です。
+
+#### 1. Android Studio / Android SDK のインストール
+
+[Android Studio](https://developer.android.com/studio) をダウンロード・インストールし、SDK Manager から以下をインストールしてください：
+
+- **Android SDK** (SDK Platform)
+- **Android SDK Platform-Tools** (adb)
+- **Android Emulator**
+
+SDK Manager は Android Studio の `Settings > Languages & Frameworks > Android SDK` から開けます。
+
+#### 2. ANDROID_HOME 環境変数の設定
+
+Windows のシステム環境変数として `ANDROID_HOME` を設定してください。
+
+**設定例（SDK を `C:\Android\Sdk` にインストールした場合）:**
+
+```
+変数名: ANDROID_HOME
+値: C:\Android\Sdk
+```
+
+**設定方法:**
+1. スタートメニュー > 「環境変数」で検索 > 「システム環境変数の編集」
+2. 「環境変数」ボタンをクリック
+3. 「システム変数」または「ユーザー変数」で「新規」をクリック
+4. `ANDROID_HOME` を追加
+
+設定後、コマンドプロンプトで確認できます：
+
+```cmd
+echo %ANDROID_HOME%
+```
+
+#### 3. AVD（Android Virtual Device）の作成
+
+Android Studio の Device Manager、またはコマンドラインで AVD を作成します。
+
+**Android Studio で作成:**
+1. `Tools > Device Manager` を開く
+2. 「Create Device」をクリック
+3. デバイス定義とシステムイメージを選択して作成
+
+**コマンドラインで作成:**
+
+```cmd
+# SDK Manager で利用可能なシステムイメージを確認
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager --list
+
+# システムイメージをインストール（例: API 28）
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager "system-images;android-28;google_apis;x86_64"
+
+# AVD を作成
+%ANDROID_HOME%\cmdline-tools\latest\bin\avdmanager create avd -n Pixel_4_API_28 -k "system-images;android-28;google_apis;x86_64" -d "pixel_4"
+
+# 作成された AVD を確認
+%ANDROID_HOME%\emulator\emulator.exe -list-avds
+```
+
+#### 4. 仮想化テクノロジーの有効化
+
+Android Emulator はハードウェア仮想化が必要です。
+
+**Intel CPU の場合:**
+- BIOS/UEFI で Intel VT-x を有効化
+- [Intel HAXM](https://github.com/intel/haxm) をインストール（Android Studio の SDK Manager からインストール可能）
+
+**AMD CPU の場合:**
+- BIOS/UEFI で AMD-V を有効化
+- Windows 10 以降では Hyper-V が自動的に使用されます
+
+**Windows 11 / Hyper-V:**
+Windows の機能として「Hyper-V」を有効化してください：
+1. 「コントロールパネル > プログラム > Windows の機能を有効化または無効化」
+2. 「Hyper-V」にチェック
+
+#### 5. WSL から Windows 実行ファイルへのアクセス
+
+WSL からは `/mnt/c/` 経由で Windows のファイルにアクセスできます。追加設定は通常不要ですが、`ANDROID_HOME` が正しく設定されているか確認してください。
+
+**確認コマンド（WSL側）:**
+
+```bash
+# SDK が存在するか確認
+ls -la /mnt/c/Android/Sdk/emulator/emulator.exe
+ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
+```
+
 ### SDKパスの自動検出
 
 以下の順序でAndroid SDKを検出します:
@@ -144,6 +235,97 @@ wsl-android-emulation-launcher --no-wait
 - Windows 端已安装 Android SDK
 - 已设置 `ANDROID_HOME` 环境变量（`.env` 或 shell 配置）
 
+### Windows 端预先设置
+
+使用本工具前，需要在 Windows 端完成以下设置。
+
+#### 1. 安装 Android Studio / Android SDK
+
+下载并安装 [Android Studio](https://developer.android.com/studio)，通过 SDK Manager 安装以下内容：
+
+- **Android SDK** (SDK Platform)
+- **Android SDK Platform-Tools** (adb)
+- **Android Emulator**
+
+SDK Manager 可从 Android Studio 的 `Settings > Languages & Frameworks > Android SDK` 打开。
+
+#### 2. 设置 ANDROID_HOME 环境变量
+
+在 Windows 系统环境变量中设置 `ANDROID_HOME`。
+
+**设置示例（SDK 安装在 `C:\Android\Sdk` 的情况）:**
+
+```
+变量名: ANDROID_HOME
+值: C:\Android\Sdk
+```
+
+**设置方法:**
+1. 开始菜单 > 搜索「环境变量」> 「编辑系统环境变量」
+2. 点击「环境变量」按钮
+3. 在「系统变量」或「用户变量」中点击「新建」
+4. 添加 `ANDROID_HOME`
+
+设置后可在命令提示符中确认：
+
+```cmd
+echo %ANDROID_HOME%
+```
+
+#### 3. 创建 AVD（Android Virtual Device）
+
+通过 Android Studio 的 Device Manager 或命令行创建 AVD。
+
+**通过 Android Studio 创建:**
+1. 打开 `Tools > Device Manager`
+2. 点击「Create Device」
+3. 选择设备定义和系统镜像创建
+
+**通过命令行创建:**
+
+```cmd
+# 查看可用的系统镜像
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager --list
+
+# 安装系统镜像（例: API 28）
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager "system-images;android-28;google_apis;x86_64"
+
+# 创建 AVD
+%ANDROID_HOME%\cmdline-tools\latest\bin\avdmanager create avd -n Pixel_4_API_28 -k "system-images;android-28;google_apis;x86_64" -d "pixel_4"
+
+# 确认已创建的 AVD
+%ANDROID_HOME%\emulator\emulator.exe -list-avds
+```
+
+#### 4. 启用虚拟化技术
+
+Android Emulator 需要硬件虚拟化支持。
+
+**Intel CPU:**
+- 在 BIOS/UEFI 中启用 Intel VT-x
+- 安装 [Intel HAXM](https://github.com/intel/haxm)（可从 Android Studio 的 SDK Manager 安装）
+
+**AMD CPU:**
+- 在 BIOS/UEFI 中启用 AMD-V
+- Windows 10 及以上版本会自动使用 Hyper-V
+
+**Windows 11 / Hyper-V:**
+在 Windows 功能中启用「Hyper-V」：
+1. 「控制面板 > 程序 > 启用或关闭 Windows 功能」
+2. 勾选「Hyper-V」
+
+#### 5. 从 WSL 访问 Windows 可执行文件
+
+WSL 可通过 `/mnt/c/` 访问 Windows 文件。通常无需额外设置，但请确认 `ANDROID_HOME` 已正确设置。
+
+**确认命令（WSL 端）:**
+
+```bash
+# 确认 SDK 是否存在
+ls -la /mnt/c/Android/Sdk/emulator/emulator.exe
+ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
+```
+
 ### SDK 路径自动检测
 
 按以下顺序检测 Android SDK:
@@ -245,6 +427,97 @@ wsl-android-emulation-launcher --no-wait
 - WSL environment
 - Android SDK installed on Windows side
 - `ANDROID_HOME` environment variable configured (`.env` or shell config)
+
+### Windows-Side Setup
+
+Before using this tool, you need to complete the following setup on Windows.
+
+#### 1. Install Android Studio / Android SDK
+
+Download and install [Android Studio](https://developer.android.com/studio), then install the following via SDK Manager:
+
+- **Android SDK** (SDK Platform)
+- **Android SDK Platform-Tools** (adb)
+- **Android Emulator**
+
+SDK Manager can be opened from Android Studio via `Settings > Languages & Frameworks > Android SDK`.
+
+#### 2. Set ANDROID_HOME Environment Variable
+
+Set `ANDROID_HOME` as a Windows system environment variable.
+
+**Example (when SDK is installed at `C:\Android\Sdk`):**
+
+```
+Variable name: ANDROID_HOME
+Value: C:\Android\Sdk
+```
+
+**How to set:**
+1. Start Menu > Search for "Environment Variables" > "Edit the system environment variables"
+2. Click "Environment Variables" button
+3. Under "System variables" or "User variables", click "New"
+4. Add `ANDROID_HOME`
+
+After setting, you can verify in Command Prompt:
+
+```cmd
+echo %ANDROID_HOME%
+```
+
+#### 3. Create an AVD (Android Virtual Device)
+
+Create an AVD via Android Studio's Device Manager or command line.
+
+**Create via Android Studio:**
+1. Open `Tools > Device Manager`
+2. Click "Create Device"
+3. Select device definition and system image to create
+
+**Create via Command Line:**
+
+```cmd
+# List available system images
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager --list
+
+# Install a system image (e.g., API 28)
+%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager "system-images;android-28;google_apis;x86_64"
+
+# Create an AVD
+%ANDROID_HOME%\cmdline-tools\latest\bin\avdmanager create avd -n Pixel_4_API_28 -k "system-images;android-28;google_apis;x86_64" -d "pixel_4"
+
+# Verify created AVDs
+%ANDROID_HOME%\emulator\emulator.exe -list-avds
+```
+
+#### 4. Enable Virtualization Technology
+
+Android Emulator requires hardware virtualization support.
+
+**Intel CPU:**
+- Enable Intel VT-x in BIOS/UEFI
+- Install [Intel HAXM](https://github.com/intel/haxm) (available via Android Studio's SDK Manager)
+
+**AMD CPU:**
+- Enable AMD-V in BIOS/UEFI
+- Hyper-V is automatically used on Windows 10 and later
+
+**Windows 11 / Hyper-V:**
+Enable "Hyper-V" in Windows Features:
+1. "Control Panel > Programs > Turn Windows features on or off"
+2. Check "Hyper-V"
+
+#### 5. Accessing Windows Executables from WSL
+
+WSL can access Windows files via `/mnt/c/`. No additional setup is usually required, but make sure `ANDROID_HOME` is properly configured.
+
+**Verification commands (on WSL side):**
+
+```bash
+# Check if SDK exists
+ls -la /mnt/c/Android/Sdk/emulator/emulator.exe
+ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
+```
 
 ### SDK Path Auto-Detection
 
