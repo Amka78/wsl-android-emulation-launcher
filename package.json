@@ -1,0 +1,41 @@
+{
+  "name": "wsl-android-emulation-launcher",
+  "version": "1.0.0",
+  "description": "Launch Android emulators from WSL with ADB connection support",
+  "type": "module",
+  "bin": {
+    "wsl-android-emulation-launcher": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "android",
+    "emulator",
+    "avd",
+    "adb",
+    "wsl",
+    "react-native"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "execa": "^9.4.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
