@@ -38,6 +38,8 @@ const messages = {
       `ディレクトリの作成に失敗: ${dir} - ${err}`,
     proxyInstalled: (name: string, path: string) =>
       `${name} プロキシをインストール: ${path}`,
+    proxyAlreadyExists: (path: string) =>
+      `既に存在します: ${path}`,
     proxyInstallFailed: (err: unknown) =>
       `プロキシのインストールに失敗: ${err}`,
     proxyNotInPath: (dir: string) =>
@@ -104,6 +106,8 @@ const messages = {
       `创建目录失败: ${dir} - ${err}`,
     proxyInstalled: (name: string, path: string) =>
       `已安装 ${name} 代理: ${path}`,
+    proxyAlreadyExists: (path: string) =>
+      `已存在: ${path}`,
     proxyInstallFailed: (err: unknown) =>
       `安装代理失败: ${err}`,
     proxyNotInPath: (dir: string) =>
@@ -165,6 +169,8 @@ const messages = {
       `Failed to create directory: ${dir} - ${err}`,
     proxyInstalled: (name: string, path: string) =>
       `Installed ${name} proxy: ${path}`,
+    proxyAlreadyExists: (path: string) =>
+      `Already exists: ${path}`,
     proxyInstallFailed: (err: unknown) =>
       `Failed to install proxy: ${err}`,
     proxyNotInPath: (dir: string) =>

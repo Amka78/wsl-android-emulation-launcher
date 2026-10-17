@@ -1,5 +1,5 @@
 import { writeFileSync, mkdirSync, chmodSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 import { log } from "./logger.js";
 import { t } from "./i18n.js";
@@ -18,7 +18,13 @@ exec "${targetExe}" "$@"
 `;
 }
 
-export function installProxies(adbPath: string, emulatorPath: string): boolean {
+export function installProxies(
+  adbPath: string,
+  emulatorPath: string,
+  sdkRoot: string,
+): boolean {
+  let success = true;
+
   // ~/.local/bin ディレクトリを作成（存在しない場合）
   if (!existsSync(PROXY_DIR)) {
     try {
@@ -34,24 +40,54 @@ export function installProxies(adbPath: string, emulatorPath: string): boolean {
   const emulatorProxy = join(PROXY_DIR, "emulator");
 
   try {
-    // adb プロキシを作成
+    // adb プロキシを作成（~/.local/bin）
     writeFileSync(adbProxy, createProxyScript("adb", adbPath, "ADB proxy for WSL → Windows"));
     chmodSync(adbProxy, 0o755);
     log.success(t.proxyInstalled("adb", adbProxy));
 
-    // emulator プロキシを作成
+    // emulator プロキシを作成（~/.local/bin）
     writeFileSync(
       emulatorProxy,
       createProxyScript("emulator", emulatorPath, "Android Emulator proxy for WSL → Windows"),
     );
     chmodSync(emulatorProxy, 0o755);
     log.success(t.proxyInstalled("emulator", emulatorProxy));
-
-    return true;
   } catch (err) {
     log.error(t.proxyInstallFailed(err));
-    return false;
+    success = false;
   }
+
+  // ANDROID_HOME 内にもラッパーを作成（Expo等が直接参照するため）
+  const androidHomeAdb = join(sdkRoot, "platform-tools", "adb");
+  const androidHomeEmulator = join(sdkRoot, "emulator", "emulator");
+
+  try {
+    // platform-tools/adb ラッパー
+    if (!existsSync(androidHomeAdb)) {
+      writeFileSync(androidHomeAdb, createProxyScript("adb", adbPath, "ADB wrapper for WSL → Windows"));
+      chmodSync(androidHomeAdb, 0o755);
+      log.success(t.proxyInstalled("adb", androidHomeAdb));
+    } else {
+      log.info(t.proxyAlreadyExists(androidHomeAdb));
+    }
+
+    // emulator/emulator ラッパー
+    if (!existsSync(androidHomeEmulator)) {
+      writeFileSync(
+        androidHomeEmulator,
+        createProxyScript("emulator", emulatorPath, "Emulator wrapper for WSL → Windows"),
+      );
+      chmodSync(androidHomeEmulator, 0o755);
+      log.success(t.proxyInstalled("emulator", androidHomeEmulator));
+    } else {
+      log.info(t.proxyAlreadyExists(androidHomeEmulator));
+    }
+  } catch (err) {
+    log.error(t.proxyInstallFailed(err));
+    success = false;
+  }
+
+  return success;
 }
 
 export function checkPathSetup(): void {

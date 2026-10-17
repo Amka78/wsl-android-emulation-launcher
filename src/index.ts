@@ -69,7 +69,7 @@ async function main() {
 
   // --install-proxy: adb/emulator プロキシを ~/.local/bin にインストール
   if (opts.installProxy) {
-    const success = installProxies(sdk.adb, sdk.emulator);
+    const success = installProxies(sdk.adb, sdk.emulator, sdk.sdkRoot);
     if (success) {
       checkPathSetup();
       process.exit(0);
