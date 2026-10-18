@@ -1,9 +1,10 @@
 {
   "name": "wsl-android-emulation-launcher",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Launch Android emulators from WSL with ADB connection support",
   "type": "module",
   "bin": {
+    "wsl-avd": "dist/index.js",
     "wsl-android-emulation-launcher": "dist/index.js"
   },
   "files": [

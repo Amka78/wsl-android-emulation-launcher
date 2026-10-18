@@ -12,19 +12,25 @@ import { detectAndroidSdk } from "./detect-sdk.js";
 import { listAvds } from "./list-avds.js";
 import { startEmulator } from "./start-emulator.js";
 import { waitForAdbConnection } from "./wait-adb.js";
+import { applyReverseForwards, parseReversePorts } from "./reverse.js";
 import { installProxies, checkPathSetup } from "./install-proxy.js";
 import { t } from "./i18n.js";
 
 const program = new Command();
 
 program
-  .name("wsl-android-emulation-launcher")
+  .name("wsl-avd")
   .description(
     "Launch Android emulators from WSL with ADB connection support",
   )
   .version("1.0.0")
   .option("--avd <name>", "specify AVD name (skip interactive selection)")
   .option("--no-wait", "skip ADB connection wait")
+  .option(
+    "--reverse <ports>",
+    "comma-separated ports to adb reverse (default: 8081)",
+  )
+  .option("--skip-reverse", "skip adb reverse setup")
   .option("--list", "list available AVDs and exit")
   .option("--export-env", "print ANDROID_HOME export command (for eval)")
   .option(
@@ -155,9 +161,24 @@ async function main() {
   startEmulator(sdk.emulator, selectedAvd);
 
   // 5. ADB接続待機
+  let connectedDevices: string[] = [];
+
   if (opts.wait !== false) {
     console.error("");
-    await waitForAdbConnection(sdk.adb);
+    connectedDevices = await waitForAdbConnection(sdk.adb);
+  }
+
+  // 6. adb reverse 設定（Expo Go / Metro を localhost 経由で接続できるようにする）
+  if (!opts.skipReverse && connectedDevices.length > 0) {
+    const ports = parseReversePorts(opts.reverse);
+
+    console.error("");
+    if (ports.length === 0) {
+      log.warn(t.invalidReversePorts(String(opts.reverse)));
+    } else {
+      log.info(t.settingUpReverse(connectedDevices.length, ports.join(", ")));
+      applyReverseForwards(sdk.adb, connectedDevices, ports);
+    }
   }
 
   console.error("");

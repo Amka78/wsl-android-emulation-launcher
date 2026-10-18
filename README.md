@@ -20,20 +20,25 @@ npm install -g wsl-android-emulation-launcher
 npx wsl-android-emulation-launcher
 ```
 
+インストール後は短縮コマンド `wsl-avd` で起動できます（長い名前もそのまま使えます）。
+
 ### 使い方
 
 ```bash
 # インタラクティブにAVDを選択して起動
-wsl-android-emulation-launcher
+wsl-avd
 
 # AVD名を直接指定
-wsl-android-emulation-launcher --avd Pixel_4_API_28
+wsl-avd --avd Pixel_4_API_28
 
 # AVD一覧を表示
-wsl-android-emulation-launcher --list
+wsl-avd --list
 
 # ADB接続待機をスキップ
-wsl-android-emulation-launcher --no-wait
+wsl-avd --no-wait
+
+# adb reverse を複数ポートに設定（デフォルトは 8081）
+wsl-avd --reverse 8081,3000
 ```
 
 ### 前提条件
@@ -149,6 +154,8 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 |---|---|
 | `--avd <name>` | 起動するAVD名を指定（インタラクティブ選択をスキップ） |
 | `--no-wait` | ADB接続待機をスキップ |
+| `--reverse <ports>` | 起動後に `adb reverse` を設定するポート（カンマ区切り、デフォルト: `8081`） |
+| `--skip-reverse` | `adb reverse` の自動設定をスキップ |
 | `--list` | AVD一覧を表示して終了 |
 | `--export-env` | `ANDROID_HOME` exportコマンドを出力（`eval`用） |
 | `--install-proxy` | `adb`/`emulator`プロキシを`~/.local/bin`にインストール |
@@ -161,7 +168,7 @@ WSL側で`ANDROID_HOME`が未設定の場合、Expo等が`Failed to resolve the 
 
 **方法1: 一時的に設定**
 ```bash
-eval $(wsl-android-emulation-launcher --export-env)
+eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
@@ -177,7 +184,7 @@ Expo等が`adb`コマンドを呼び出す際、WSL側にはWindows版`adb.exe`�
 
 ```bash
 # プロキシをインストール（初回のみ）
-wsl-android-emulation-launcher --install-proxy
+wsl-avd --install-proxy
 
 # PATHに追加
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -213,20 +220,25 @@ npm install -g wsl-android-emulation-launcher
 npx wsl-android-emulation-launcher
 ```
 
+安装后可使用简写命令 `wsl-avd` 启动（长名称仍可继续使用）。
+
 ### 使用方法
 
 ```bash
 # 交互式选择 AVD 并启动
-wsl-android-emulation-launcher
+wsl-avd
 
 # 直接指定 AVD 名称
-wsl-android-emulation-launcher --avd Pixel_4_API_28
+wsl-avd --avd Pixel_4_API_28
 
 # 显示 AVD 列表
-wsl-android-emulation-launcher --list
+wsl-avd --list
 
 # 跳过 ADB 连接等待
-wsl-android-emulation-launcher --no-wait
+wsl-avd --no-wait
+
+# 为多个端口设置 adb reverse（默认为 8081）
+wsl-avd --reverse 8081,3000
 ```
 
 ### 前提条件
@@ -342,6 +354,8 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 |---|---|
 | `--avd <name>` | 指定要启动的 AVD 名称（跳过交互选择） |
 | `--no-wait` | 跳过 ADB 连接等待 |
+| `--reverse <ports>` | 启动后设置 `adb reverse` 的端口（逗号分隔，默认: `8081`） |
+| `--skip-reverse` | 跳过 `adb reverse` 自动设置 |
 | `--list` | 显示 AVD 列表并退出 |
 | `--export-env` | 输出 `ANDROID_HOME` export 命令（用于 `eval`） |
 | `--install-proxy` | 将 `adb`/`emulator` 代理安装到 `~/.local/bin` |
@@ -354,7 +368,7 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 
 **方法1：临时设置**
 ```bash
-eval $(wsl-android-emulation-launcher --export-env)
+eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
@@ -370,7 +384,7 @@ source ~/.bashrc
 
 ```bash
 # 安装代理（仅首次）
-wsl-android-emulation-launcher --install-proxy
+wsl-avd --install-proxy
 
 # 添加到 PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -406,20 +420,25 @@ Or run directly with npx:
 npx wsl-android-emulation-launcher
 ```
 
+After installation, use the short command `wsl-avd` (the long name still works).
+
 ### Usage
 
 ```bash
 # Interactively select AVD and launch
-wsl-android-emulation-launcher
+wsl-avd
 
 # Specify AVD name directly
-wsl-android-emulation-launcher --avd Pixel_4_API_28
+wsl-avd --avd Pixel_4_API_28
 
 # List available AVDs
-wsl-android-emulation-launcher --list
+wsl-avd --list
 
 # Skip ADB connection wait
-wsl-android-emulation-launcher --no-wait
+wsl-avd --no-wait
+
+# Configure adb reverse for multiple ports (default: 8081)
+wsl-avd --reverse 8081,3000
 ```
 
 ### Prerequisites
@@ -535,6 +554,8 @@ Detects Android SDK in the following order:
 |---|---|
 | `--avd <name>` | Specify AVD name to launch (skip interactive selection) |
 | `--no-wait` | Skip ADB connection wait |
+| `--reverse <ports>` | Ports to configure with `adb reverse` after launch (comma-separated, default: `8081`) |
+| `--skip-reverse` | Skip automatic `adb reverse` setup |
 | `--list` | List available AVDs and exit |
 | `--export-env` | Print `ANDROID_HOME` export command (for `eval`) |
 | `--install-proxy` | Install `adb`/`emulator` proxy scripts to `~/.local/bin` |
@@ -547,7 +568,7 @@ If `ANDROID_HOME` is not set in WSL, tools like Expo will report `Failed to reso
 
 **Method 1: Temporary setup**
 ```bash
-eval $(wsl-android-emulation-launcher --export-env)
+eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
@@ -563,7 +584,7 @@ When tools like Expo call the `adb` command, WSL only has Windows `adb.exe`, cau
 
 ```bash
 # Install proxies (first time only)
-wsl-android-emulation-launcher --install-proxy
+wsl-avd --install-proxy
 
 # Add to PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc

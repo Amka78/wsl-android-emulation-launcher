@@ -74,6 +74,16 @@ const messages = {
       "タイムアウトしました。エミュレーターの起動に時間がかかっている可能性があります。",
     manualCheck: (cmd: string) => `手動で確認してください: ${cmd} devices`,
 
+    // ADB reverse
+    settingUpReverse: (count: number, ports: string) =>
+      `ADB reverse を設定中 (${count}台, ポート: ${ports})`,
+    reverseApplied: (serial: string, port: number) =>
+      `adb reverse 設定: ${serial} tcp:${port} → tcp:${port}`,
+    reverseFailed: (serial: string, port: number, err: unknown) =>
+      `adb reverse 設定に失敗: ${serial} tcp:${port} - ${err}`,
+    invalidReversePorts: (value: string) =>
+      `有効なポートが指定されていません: ${value}`,
+
     // メイン
     header: "Android Emulator 起動スクリプト (WSL → Windows)",
     setupComplete: "セットアップ完了!",
@@ -136,6 +146,15 @@ const messages = {
     connectedDevices: "已连接的设备:",
     timeout: "超时。模拟器启动可能需要更长时间。",
     manualCheck: (cmd: string) => `请手动检查: ${cmd} devices`,
+
+    settingUpReverse: (count: number, ports: string) =>
+      `正在设置 ADB reverse (${count} 台设备, 端口: ${ports})`,
+    reverseApplied: (serial: string, port: number) =>
+      `已设置 adb reverse: ${serial} tcp:${port} → tcp:${port}`,
+    reverseFailed: (serial: string, port: number, err: unknown) =>
+      `设置 adb reverse 失败: ${serial} tcp:${port} - ${err}`,
+    invalidReversePorts: (value: string) =>
+      `未指定有效端口: ${value}`,
 
     header: "Android 模拟器启动脚本 (WSL → Windows)",
     setupComplete: "设置完成!",
@@ -200,6 +219,15 @@ const messages = {
     connectedDevices: "Connected devices:",
     timeout: "Timeout. The emulator may be taking longer to start.",
     manualCheck: (cmd: string) => `Please check manually: ${cmd} devices`,
+
+    settingUpReverse: (count: number, ports: string) =>
+      `Setting up adb reverse (${count} device(s), ports: ${ports})`,
+    reverseApplied: (serial: string, port: number) =>
+      `adb reverse configured: ${serial} tcp:${port} → tcp:${port}`,
+    reverseFailed: (serial: string, port: number, err: unknown) =>
+      `Failed to configure adb reverse: ${serial} tcp:${port} - ${err}`,
+    invalidReversePorts: (value: string) =>
+      `No valid ports specified: ${value}`,
 
     header: "Android Emulator Launcher (WSL → Windows)",
     setupComplete: "Setup complete!",

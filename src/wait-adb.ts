@@ -9,7 +9,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function waitForAdbConnection(adbPath: string): Promise<boolean> {
+export async function waitForAdbConnection(adbPath: string): Promise<string[]> {
   log.info(t.waitingAdb);
 
   const startTime = Date.now();
@@ -22,18 +22,19 @@ export async function waitForAdbConnection(adbPath: string): Promise<boolean> {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
-      const lines = output
+      const serials = output
         .split("\n")
         .map((l) => l.replace(/\r/g, "").trim())
-        .filter((l) => /emulator|device$/.test(l));
+        .filter((l) => /^[^\s]+\s+device$/.test(l))
+        .map((l) => l.split(/\s+/)[0]);
 
-      if (lines.length > 0) {
+      if (serials.length > 0) {
         console.error("");
         log.success(t.adbConnected);
         console.error("");
         log.info(t.connectedDevices);
         console.error(output.replace(/\r/g, ""));
-        return true;
+        return serials;
       }
     } catch {
       // adb がまだ起動中の場合は無視
@@ -46,5 +47,5 @@ export async function waitForAdbConnection(adbPath: string): Promise<boolean> {
   console.error("");
   log.warn(t.timeout);
   log.info(t.manualCheck(adbPath));
-  return false;
+  return [];
 }
