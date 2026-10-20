@@ -214,6 +214,64 @@ source ~/.bashrc
 adb version
 ```
 
+### 実行後: 各開発環境からの接続
+
+`wsl-avd` のセットアップ完了後、エミュレーターは ADB に接続済みの状態になり、自動で `adb reverse` が設定されます（デフォルトはポート 8081）:
+
+```
+adb reverse tcp:8081 tcp:8081
+```
+
+これにより **エミュレーター内部の `localhost:8081` が WSL 側の `localhost:8081` に転送**されます。つまり、WSL で起動した Metro バンドラー（ポート 8081）へ、エミュレーターから `localhost:8081` で直接アクセスできます。LAN IP や Windows Firewall の影響を受けないため、mirrored networking 環境でも安定して接続できます。
+
+**Expo (Expo Go)**
+
+```bash
+USE_EXPO_GO=true bunx expo start --host localhost
+```
+
+起動後に表示される QR コードを Expo Go で読み取るか、「Enter URL manually」から `exp://localhost:8081` を開きます。`--host localhost` モードにすることで広告 URL が `exp://localhost:8081` になり、adb reverse 経由で到達できます。
+
+**React Native CLI**
+
+```bash
+npx react-native run-android
+```
+
+ビルド → エミュレーターへのインストール → 起動まで自動で行われます。Metro は WSL 側で別途起動しておきます（`npx react-native start`）。
+
+**Flutter**
+
+```bash
+flutter devices # emulator-5554 が表示されれば接続 OK
+flutter run     # ビルド → インストール → 起動 → ホットリロード
+```
+
+エミュレーターが ADB に見えていれば、`flutter run` によるビルド・インストール・ホットリロードがそのまま使えます。デバッグ用の通信（VM Service など）は Flutter 側が adb 経由で自動設定するため、ポートの指定は不要です。ビルドには `ANDROID_HOME` の設定と adb プロキシが必要です（前述のセクション参照）。
+
+**標準の Android アプリ（Android Studio / Gradle / adb）**
+
+- **Windows 側の Android Studio**: エミュレーターは Windows 上で動いているため、そのままデバイスとして表示され、通常どおり実行・デバッグできます。
+- **WSL 側のコマンド**: `adb install ./app-debug.apk` や `adb logcat`、Gradle ビルド（`./gradlew installDebug`）などがそのまま使えます。
+- アプリから WSL 上の開発サーバー（API など）へ接続する場合は、`wsl-avd --reverse 8081,3000` でポートを転送し、エミュレーター内の `localhost:3000` からアクセスしてください。
+
+**その他の開発サーバー（API など）**
+
+```bash
+wsl-avd --reverse 8081,3000
+```
+
+カンマ区切りで追加ポートを転送できます。例: ポート 3000 の API サーバーを、エミュレーター内の `localhost:3000` から参照できます。
+
+**接続確認**
+
+```bash
+adb devices        # emulator-5554 が表示されれば接続 OK
+adb reverse --list # 設定済みの reverse 一覧を表示
+```
+
+> 注意: `adb reverse` はエミュレーターの再起動で消えます。起動のたびに `wsl-avd` を実行してください（毎回自動設定します）。また、ビルドが必要なツール（`expo run:android` など）には事前に `ANDROID_HOME` の設定と adb プロキシのインストールが必須です（前述のセクション参照）。
+
 ### ADB接続のトラブルシューティング
 
 Windows 11 を使用している場合は、`.wslconfig` で mirrored networking を有効にすると ADB 接続が安定します：
@@ -434,6 +492,64 @@ source ~/.bashrc
 adb version
 ```
 
+### 运行后：从各开发环境连接
+
+`wsl-avd` 设置完成后，模拟器即已连接到 ADB，并自动设置 `adb reverse`（默认为端口 8081）:
+
+```
+adb reverse tcp:8081 tcp:8081
+```
+
+这样**模拟器内部的 `localhost:8081` 会被转发到 WSL 侧的 `localhost:8081`**。因此在 WSL 上启动的 Metro bundler（端口 8081）可从模拟器通过 `localhost:8081` 直接访问，不受 LAN IP / Windows 防火墙影响。
+
+**Expo (Expo Go)**
+
+```bash
+USE_EXPO_GO=true bunx expo start --host localhost
+```
+
+启动后在 Expo Go 中扫描二维码，或用「Enter URL manually」打开 `exp://localhost:8081`。使用 `--host localhost` 模式后广告的 URL 为 `exp://localhost:8081`，可通过 adb reverse 访问。
+
+**React Native CLI**
+
+```bash
+npx react-native run-android
+```
+
+自动完成构建 → 安装 → 启动。Metro 需在 WSL 侧另行启动（`npx react-native start`）。
+
+**Flutter**
+
+```bash
+flutter devices # 显示 emulator-5554 即连接成功
+flutter run     # 构建 → 安装 → 启动 → 热重载
+```
+
+只要模拟器对 ADB 可见，`flutter run` 的构建、安装、热重载即可直接使用。调试通信（VM Service 等）由 Flutter 通过 adb 自动设置，无需指定端口。构建需要设置 `ANDROID_HOME` 并安装 adb 代理（参见前面章节）。
+
+**标准 Android 应用（Android Studio / Gradle / adb）**
+
+- **Windows 端的 Android Studio**: 模拟器运行在 Windows 上，会直接显示为设备，可直接运行和调试。
+- **WSL 端命令**: `adb install ./app-debug.apk`、`adb logcat`、Gradle 构建（`./gradlew installDebug`）等均可正常使用。
+- 若应用需要连接 WSL 上的开发服务器（如 API），可用 `wsl-avd --reverse 8081,3000` 转发端口，然后通过模拟器内的 `localhost:3000` 访问。
+
+**其他开发服务器（如 API）**
+
+```bash
+wsl-avd --reverse 8081,3000
+```
+
+用逗号分隔追加端口。例如可在模拟器内通过 `localhost:3000` 访问 WSL 上的 API 服务器。
+
+**连接确认**
+
+```bash
+adb devices        # 显示 emulator-5554 即连接成功
+adb reverse --list # 显示已设置的反向列表
+```
+
+> 注意: `adb reverse` 在模拟器重启后会失效。每次启动请运行 `wsl-avd`（它会自动设置）。另外，需要构建的工具（如 `expo run:android`）必须事先设置 `ANDROID_HOME` 并安装 adb 代理（参见前面章节）。
+
 ### ADB 连接故障排除
 
 如果使用 Windows 11,在 `.wslconfig` 中启用 mirrored networking 可以使 ADB 连接更稳定:
@@ -653,6 +769,64 @@ source ~/.bashrc
 # Test
 adb version
 ```
+
+### After Running: Connecting from Each Dev Environment
+
+Once `wsl-avd` completes setup, the emulator is connected to ADB and `adb reverse` is configured automatically (port 8081 by default):
+
+```
+adb reverse tcp:8081 tcp:8081
+```
+
+This forwards **`localhost:8081` inside the emulator to `localhost:8081` on the WSL host**, so a Metro bundler running in WSL (port 8081) is reachable directly from the emulator via `localhost:8081` — unaffected by LAN IPs or the Windows firewall.
+
+**Expo (Expo Go)**
+
+```bash
+USE_EXPO_GO=true bunx expo start --host localhost
+```
+
+Scan the QR code in Expo Go, or open `exp://localhost:8081` via "Enter URL manually". The `--host localhost` mode makes the advertised URL `exp://localhost:8081`, reachable over adb reverse.
+
+**React Native CLI**
+
+```bash
+npx react-native run-android
+```
+
+This builds, installs, and launches the app automatically. Start Metro separately in WSL (`npx react-native start`).
+
+**Flutter**
+
+```bash
+flutter devices # emulator-5554 should be listed
+flutter run     # build → install → launch → hot reload
+```
+
+As long as the emulator is visible to ADB, `flutter run` builds, installs, launches, and hot-reloads without extra configuration — Flutter handles the debug connection (VM Service, etc.) over adb automatically, so no port setup is needed. Building requires `ANDROID_HOME` and the adb proxy (see sections above).
+
+**Standard Android apps (Android Studio / Gradle / adb)**
+
+- **Android Studio on Windows**: since the emulator runs on Windows, it appears as a device there directly and can be run and debugged as usual.
+- **Commands from WSL**: `adb install ./app-debug.apk`, `adb logcat`, and Gradle builds (`./gradlew installDebug`) work as normal.
+- To connect your app to a dev server on WSL (e.g., an API), forward the port with `wsl-avd --reverse 8081,3000` and reach it at `localhost:3000` inside the emulator.
+
+**Other dev servers (e.g., API)**
+
+```bash
+wsl-avd --reverse 8081,3000
+```
+
+Pass extra ports comma-separated. Example: reach an API server on WSL at `localhost:3000` from inside the emulator.
+
+**Verification**
+
+```bash
+adb devices        # emulator-5554 should be listed
+adb reverse --list # shows configured reverse rules
+```
+
+> Note: `adb reverse` rules are lost when the emulator restarts. Run `wsl-avd` each time you start it (it sets them up automatically). Also, build tools like `expo run:android` require `ANDROID_HOME` to be set and the adb proxy installed beforehand (see sections above).
 
 ### ADB Connection Troubleshooting
 
