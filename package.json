@@ -1,6 +1,6 @@
 {
-  "name": "wsl-android-emulation-launcher",
-  "version": "1.0.3",
+  "name": "wsl-avd",
+  "version": "1.0.4",
   "description": "Launch Android emulators from WSL with ADB connection support",
   "type": "module",
   "bin": {
