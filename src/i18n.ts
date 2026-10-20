@@ -84,6 +84,19 @@ const messages = {
     invalidReversePorts: (value: string) =>
       `有効なポートが指定されていません: ${value}`,
 
+    // APK install
+    apkNotFound: (path: string) => `APKファイルが見つかりません: ${path}`,
+    apkNotApk: (path: string) => `APKファイル(.apk)を指定してください: ${path}`,
+    noDeviceConnected: "接続中のデバイスがないためエミュレーターを起動します",
+    installingApk: (path: string) => `APKをインストールします: ${path}`,
+    apkWindowsPath: (path: string) => `Windowsから見えるパス: ${path}`,
+    apkInstalledTo: (serial: string) => `APKインストール完了: ${serial}`,
+    apkInstalled: "APKのインストールが完了しました!",
+    apkInstallFailed: (serial: string, path: string, err: unknown) =>
+      `APKのインストールに失敗: ${serial} ${path} - ${err}`,
+    apkSomeFailed: "一部のデバイスでインストールに失敗しました",
+    noDeviceForInstall: "APKをインストールできるデバイスがありません",
+
     // メイン
     header: "Android Emulator 起動スクリプト (WSL → Windows)",
     setupComplete: "セットアップ完了!",
@@ -155,6 +168,18 @@ const messages = {
       `设置 adb reverse 失败: ${serial} tcp:${port} - ${err}`,
     invalidReversePorts: (value: string) =>
       `未指定有效端口: ${value}`,
+
+    apkNotFound: (path: string) => `找不到 APK 文件: ${path}`,
+    apkNotApk: (path: string) => `请指定 APK 文件(.apk): ${path}`,
+    noDeviceConnected: "没有已连接的设备,正在启动模拟器",
+    installingApk: (path: string) => `开始安装 APK: ${path}`,
+    apkWindowsPath: (path: string) => `Windows 端路径: ${path}`,
+    apkInstalledTo: (serial: string) => `APK 安装完成: ${serial}`,
+    apkInstalled: "APK 安装完成!",
+    apkInstallFailed: (serial: string, path: string, err: unknown) =>
+      `APK 安装失败: ${serial} ${path} - ${err}`,
+    apkSomeFailed: "部分设备安装失败",
+    noDeviceForInstall: "没有可安装 APK 的设备",
 
     header: "Android 模拟器启动脚本 (WSL → Windows)",
     setupComplete: "设置完成!",
@@ -228,6 +253,18 @@ const messages = {
       `Failed to configure adb reverse: ${serial} tcp:${port} - ${err}`,
     invalidReversePorts: (value: string) =>
       `No valid ports specified: ${value}`,
+
+    apkNotFound: (path: string) => `APK file not found: ${path}`,
+    apkNotApk: (path: string) => `Please specify an APK file (.apk): ${path}`,
+    noDeviceConnected: "No device connected, launching the emulator",
+    installingApk: (path: string) => `Installing APK: ${path}`,
+    apkWindowsPath: (path: string) => `Path visible to Windows: ${path}`,
+    apkInstalledTo: (serial: string) => `APK installed: ${serial}`,
+    apkInstalled: "APK installation complete!",
+    apkInstallFailed: (serial: string, path: string, err: unknown) =>
+      `Failed to install APK: ${serial} ${path} - ${err}`,
+    apkSomeFailed: "Installation failed on some devices",
+    noDeviceForInstall: "No device available to install the APK",
 
     header: "Android Emulator Launcher (WSL → Windows)",
     setupComplete: "Setup complete!",

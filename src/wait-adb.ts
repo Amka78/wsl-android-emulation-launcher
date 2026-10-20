@@ -9,6 +9,30 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function parseDevicesOutput(output: string): string[] {
+  return output
+    .split("\n")
+    .map((l) => l.replace(/\r/g, "").trim())
+    .filter((l) => /^[^\s]+\s+device$/.test(l))
+    .map((l) => l.split(/\s+/)[0]);
+}
+
+/**
+ * 現在接続されているデバイスの serial 一覧を同期的に取得（接続待機はしない）
+ */
+export function getConnectedSerials(adbPath: string): string[] {
+  try {
+    const output = execFileSync(adbPath, ["devices"], {
+      encoding: "utf-8",
+      timeout: 5000,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return parseDevicesOutput(output);
+  } catch {
+    return [];
+  }
+}
+
 export async function waitForAdbConnection(adbPath: string): Promise<string[]> {
   log.info(t.waitingAdb);
 
@@ -22,11 +46,7 @@ export async function waitForAdbConnection(adbPath: string): Promise<string[]> {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
-      const serials = output
-        .split("\n")
-        .map((l) => l.replace(/\r/g, "").trim())
-        .filter((l) => /^[^\s]+\s+device$/.test(l))
-        .map((l) => l.split(/\s+/)[0]);
+      const serials = parseDevicesOutput(output);
 
       if (serials.length > 0) {
         console.error("");

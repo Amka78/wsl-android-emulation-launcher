@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 
 /**
@@ -11,6 +11,32 @@ export function wslToWindowsPath(wslPath: string): string {
   const drive = match[1].toUpperCase();
   const rest = match[2].replace(/\//g, "\\");
   return `${drive}:\\${rest}`;
+}
+
+/**
+ * WSLパスをWindowsプロセス(adb.exe等)が開けるパスに変換する
+ * - /mnt/<drive>/... → <DRIVE>:\... （Windows側から直接読める）
+ * - WSL内部パス     → \\wsl.localhost の UNC パス（wslpath -w で変換）
+ * - 既にWindowsパス  → そのまま
+ */
+export function toWindowsAccessiblePath(wslPath: string): string {
+  if (/^[a-zA-Z]:[\\/]/.test(wslPath) || /^\\\\/.test(wslPath)) {
+    return wslPath;
+  }
+
+  const mntMatch = wslPath.match(/^\/mnt\/([a-zA-Z])\/(.*)$/);
+  if (mntMatch) {
+    return `${mntMatch[1].toUpperCase()}:\\${mntMatch[2].replace(/\//g, "\\")}`;
+  }
+
+  try {
+    return execFileSync("wslpath", ["-w", wslPath], {
+      encoding: "utf-8",
+    }).trim();
+  } catch {
+    // wslpath が使えない場合は元のパスを返す
+    return wslPath;
+  }
 }
 
 /**

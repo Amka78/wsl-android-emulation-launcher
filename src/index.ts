@@ -2,19 +2,30 @@
 
 import { config } from "dotenv";
 import { resolve, dirname } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import prompts from "prompts";
 import { Command } from "commander";
 import { log } from "./logger.js";
-import { wslToWindowsPath } from "./path-utils.js";
-import { detectAndroidSdk } from "./detect-sdk.js";
+import { wslToWindowsPath, toWindowsAccessiblePath } from "./path-utils.js";
+import { detectAndroidSdk, AndroidSdkPaths } from "./detect-sdk.js";
 import { listAvds } from "./list-avds.js";
 import { startEmulator } from "./start-emulator.js";
-import { waitForAdbConnection } from "./wait-adb.js";
+import {
+  waitForAdbConnection,
+  getConnectedSerials,
+} from "./wait-adb.js";
 import { applyReverseForwards, parseReversePorts } from "./reverse.js";
 import { installProxies, checkPathSetup } from "./install-proxy.js";
+import { selectAvdName, printAvdList } from "./select-avd.js";
+import { installApkToDevices } from "./install-apk.js";
 import { t } from "./i18n.js";
+
+const pkgVersion = JSON.parse(
+  readFileSync(
+    resolve(dirname(fileURLToPath(import.meta.url)), "../package.json"),
+    "utf-8",
+  ),
+).version as string;
 
 const program = new Command();
 
@@ -23,7 +34,7 @@ program
   .description(
     "Launch Android emulators from WSL with ADB connection support",
   )
-  .version("1.0.0")
+  .version(pkgVersion)
   .option("--avd <name>", "specify AVD name (skip interactive selection)")
   .option("--no-wait", "skip ADB connection wait")
   .option(
@@ -37,9 +48,98 @@ program
     "--install-proxy",
     "install adb/emulator proxy scripts to ~/.local/bin",
   )
+  .option(
+    "--install <apk>",
+    "install a locally built APK to the emulator",
+  )
   .parse(process.argv);
 
 const opts = program.opts();
+
+type CliOptions = ReturnType<typeof program.opts>;
+
+/**
+ * --install: ローカルビルドしたAPKをエミュレーターにインストールする
+ * デバイス未接続時は AVD選択 → 起動 → ADB接続待機を経てインストールする
+ */
+async function runInstallAsync(
+  sdk: AndroidSdkPaths,
+  cliOpts: CliOptions,
+): Promise<void> {
+  const apkPath = String(cliOpts.install);
+
+  if (!apkPath.toLowerCase().endsWith(".apk")) {
+    log.error(t.apkNotApk(apkPath));
+    process.exit(1);
+  }
+  if (!existsSync(apkPath)) {
+    log.error(t.apkNotFound(apkPath));
+    process.exit(1);
+  }
+
+  let serials = getConnectedSerials(sdk.adb);
+
+  // 未接続ならエミュレーターを起動して接続を待つ
+  if (serials.length === 0) {
+    console.error("");
+    log.info(t.noDeviceConnected);
+
+    const avds = listAvds(sdk.emulator);
+    if (avds.length === 0) {
+      log.error(t.noAvds);
+      log.info(t.createAvdInManager);
+      process.exit(1);
+    }
+
+    console.error("");
+    const selectedAvd = await selectAvdName(avds, cliOpts);
+    if (!selectedAvd) {
+      process.exit(1);
+    }
+
+    console.error("");
+    log.info(t.selectedAvd(selectedAvd));
+    console.error("");
+
+    startEmulator(sdk.emulator, selectedAvd);
+
+    console.error("");
+    serials = await waitForAdbConnection(sdk.adb);
+  }
+
+  if (serials.length === 0) {
+    log.error(t.noDeviceForInstall);
+    process.exit(1);
+  }
+
+  // Metro 等への接続用に adb reverse を設定（--skip-reverse で無効化可）
+  if (!cliOpts.skipReverse) {
+    const ports = parseReversePorts(cliOpts.reverse);
+
+    console.error("");
+    if (ports.length === 0) {
+      log.warn(t.invalidReversePorts(String(cliOpts.reverse)));
+    } else {
+      log.info(t.settingUpReverse(serials.length, ports.join(", ")));
+      applyReverseForwards(sdk.adb, serials, ports);
+    }
+  }
+
+  console.error("");
+  log.info(t.installingApk(apkPath));
+  const apkWindowsPath = toWindowsAccessiblePath(apkPath);
+  log.info(t.apkWindowsPath(apkWindowsPath));
+
+  const success = installApkToDevices(sdk.adb, serials, apkWindowsPath);
+
+  console.error("");
+  if (success) {
+    log.success(t.apkInstalled);
+  } else {
+    log.error(t.apkSomeFailed);
+    process.exit(1);
+  }
+}
 
 async function main() {
   // .env を読み込む（プロジェクトルートから）
@@ -97,6 +197,12 @@ async function main() {
   log.info(t.androidHomeAutoSet(sdk.sdkRoot));
   console.error("");
 
+  // --install: ローカルビルドしたAPKをエミュレーターにインストール
+  if (opts.install) {
+    await runInstallAsync(sdk, opts);
+    return;
+  }
+
   // 2. AVD一覧取得
   const avds = listAvds(sdk.emulator);
 
@@ -108,49 +214,14 @@ async function main() {
 
   // --list: 一覧表示のみ
   if (opts.list) {
-    console.error(t.availableAvds);
-    console.error("----------------------------------------");
-    for (const [i, avd] of avds.entries()) {
-      console.error(`  ${i + 1}) ${avd}`);
-    }
-    console.error("----------------------------------------");
+    printAvdList(avds);
     process.exit(0);
   }
 
   // 3. AVD選択
-  let selectedAvd: string;
-
-  if (opts.avd) {
-    if (!avds.includes(opts.avd)) {
-      log.error(t.avdNotFound(opts.avd));
-      log.info(t.available(avds.join(", ")));
-      process.exit(1);
-    }
-    selectedAvd = opts.avd;
-  } else if (avds.length === 1) {
-    log.info(t.autoSelected);
-    selectedAvd = avds[0];
-  } else {
-    console.error(t.availableAvds);
-    console.error("----------------------------------------");
-    for (const [i, avd] of avds.entries()) {
-      console.error(`  ${i + 1}) ${avd}`);
-    }
-    console.error("----------------------------------------");
-    console.error("");
-
-    const response = await prompts({
-      type: "select",
-      name: "avd",
-      message: t.selectAvd,
-      choices: avds.map((avd) => ({ title: avd, value: avd })),
-    });
-
-    if (!response.avd) {
-      log.error(t.selectionCancelled);
-      process.exit(1);
-    }
-    selectedAvd = response.avd;
+  const selectedAvd = await selectAvdName(avds, opts);
+  if (!selectedAvd) {
+    process.exit(1);
   }
 
   console.error("");

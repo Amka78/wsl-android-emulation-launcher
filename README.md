@@ -37,6 +37,9 @@ wsl-avd --list
 # ADB接続待機をスキップ
 wsl-avd --no-wait
 
+# ローカルビルドしたAPKをエミュレーターにインストール
+wsl-avd --install ./app-release.apk
+
 # adb reverse を複数ポートに設定（デフォルトは 8081）
 wsl-avd --reverse 8081,3000
 ```
@@ -159,8 +162,25 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 | `--list` | AVD一覧を表示して終了 |
 | `--export-env` | `ANDROID_HOME` exportコマンドを出力（`eval`用） |
 | `--install-proxy` | `adb`/`emulator`プロキシを`~/.local/bin`にインストール |
+| `--install <apk>` | ローカルビルドしたAPKをエミュレーターにインストール（未接続なら起動） |
 | `-V, --version` | バージョンを表示 |
 | `-h, --help` | ヘルプを表示 |
+
+### ローカルビルドしたAPKのインストール（--install）
+
+エミュレーター（または接続済みデバイス）に、ローカルでビルドしたAPKをインストールします。
+
+```bash
+# デバイス未接続の場合はエミュレーターを起動してからインストール
+wsl-avd --install ./app-release.apk
+
+# 起動するAVDを指定してインストール
+wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
+```
+
+- 未接続時はAVD選択 → エミュレーター起動 → ADB接続待機を経てインストールします
+- インストールは `adb install -r -d` 相当（既存アプリの置き換え・ダウングレード許可）
+- `--skip-reverse` を付けるとインストール前の `adb reverse` 設定をスキップできます
 
 ### Expo/React NativeでANDROID_HOMEエラーを回避
 
@@ -236,6 +256,9 @@ wsl-avd --list
 
 # 跳过 ADB 连接等待
 wsl-avd --no-wait
+
+# 安装本地构建的 APK 到模拟器
+wsl-avd --install ./app-release.apk
 
 # 为多个端口设置 adb reverse（默认为 8081）
 wsl-avd --reverse 8081,3000
@@ -359,8 +382,25 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 | `--list` | 显示 AVD 列表并退出 |
 | `--export-env` | 输出 `ANDROID_HOME` export 命令（用于 `eval`） |
 | `--install-proxy` | 将 `adb`/`emulator` 代理安装到 `~/.local/bin` |
+| `--install <apk>` | 安装本地构建的 APK 到模拟器（未连接时自动启动） |
 | `-V, --version` | 显示版本号 |
 | `-h, --help` | 显示帮助信息 |
+
+### 安装本地构建的 APK（--install）
+
+将本地构建的 APK 安装到模拟器（或已连接的设备）。
+
+```bash
+# 设备未连接时先启动模拟器再安装
+wsl-avd --install ./app-release.apk
+
+# 指定要启动的 AVD 后安装
+wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
+```
+
+- 未连接时依次执行 AVD 选择 → 启动模拟器 → 等待 ADB 连接 → 安装
+- 安装相当于 `adb install -r -d`（替换现有应用并允许降级）
+- 添加 `--skip-reverse` 可跳过安装前的 `adb reverse` 设置
 
 ### 解决 Expo/React Native 的 ANDROID_HOME 错误
 
@@ -436,6 +476,9 @@ wsl-avd --list
 
 # Skip ADB connection wait
 wsl-avd --no-wait
+
+# Install a locally built APK to the emulator
+wsl-avd --install ./app-release.apk
 
 # Configure adb reverse for multiple ports (default: 8081)
 wsl-avd --reverse 8081,3000
@@ -559,8 +602,25 @@ Detects Android SDK in the following order:
 | `--list` | List available AVDs and exit |
 | `--export-env` | Print `ANDROID_HOME` export command (for `eval`) |
 | `--install-proxy` | Install `adb`/`emulator` proxy scripts to `~/.local/bin` |
+| `--install <apk>` | Install a locally built APK to the emulator (launches emulator if none connected) |
 | `-V, --version` | Show version number |
 | `-h, --help` | Show help |
+
+### Installing a Locally Built APK (--install)
+
+Installs a locally built APK to the emulator (or any connected device).
+
+```bash
+# Launches the emulator first if no device is connected
+wsl-avd --install ./app-release.apk
+
+# Specify the AVD to launch when installing
+wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
+```
+
+- If no device is connected: AVD selection → emulator launch → ADB wait → install
+- Equivalent to `adb install -r -d` (replaces the existing app, allows downgrades)
+- Add `--skip-reverse` to skip the `adb reverse` setup before installing
 
 ### Fixing ANDROID_HOME Errors in Expo/React Native
 
