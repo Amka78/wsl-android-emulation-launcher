@@ -11,16 +11,16 @@ CLI tool to launch Android emulators from WSL with ADB connection support.
 ### インストール
 
 ```bash
-npm install -g wsl-android-emulation-launcher
+npm install -g wsl-avd
 ```
 
 または npx で直接実行:
 
 ```bash
-npx wsl-android-emulation-launcher
+npx wsl-avd
 ```
 
-インストール後は短縮コマンド `wsl-avd` で起動できます（長い名前もそのまま使えます）。
+インストール後はコマンド `wsl-avd` で起動できます。旧名称 `wsl-android-emulation-launcher` でインストール済みの場合は、そのまま使い続けられます。
 
 ### 使い方
 
@@ -289,16 +289,16 @@ networkingMode=mirrored
 ### 安装
 
 ```bash
-npm install -g wsl-android-emulation-launcher
+npm install -g wsl-avd
 ```
 
 或直接使用 npx 运行:
 
 ```bash
-npx wsl-android-emulation-launcher
+npx wsl-avd
 ```
 
-安装后可使用简写命令 `wsl-avd` 启动（长名称仍可继续使用）。
+安装后使用命令 `wsl-avd` 启动。使用旧名称 `wsl-android-emulation-launcher` 安装的用户仍可继续使用。
 
 ### 使用方法
 
@@ -567,16 +567,16 @@ networkingMode=mirrored
 ### Installation
 
 ```bash
-npm install -g wsl-android-emulation-launcher
+npm install -g wsl-avd
 ```
 
 Or run directly with npx:
 
 ```bash
-npx wsl-android-emulation-launcher
+npx wsl-avd
 ```
 
-After installation, use the short command `wsl-avd` (the long name still works).
+After installation, launch with the command `wsl-avd`. Users who installed the old name `wsl-android-emulation-launcher` can keep using it as-is.
 
 ### Usage
 
