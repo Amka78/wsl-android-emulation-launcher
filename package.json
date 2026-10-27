@@ -4,8 +4,7 @@
   "description": "Launch Android emulators from WSL with ADB connection support",
   "type": "module",
   "bin": {
-    "wsl-avd": "dist/index.js",
-    "wsl-android-emulation-launcher": "dist/index.js"
+    "wsl-avd": "dist/index.js"
   },
   "files": [
     "dist"

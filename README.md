@@ -1,4 +1,4 @@
-# wsl-android-emulation-launcher
+# wsl-avd
 
 WSL側からWindowsのAndroid Emulatorを起動し、ADB接続するCLIツール。  
 从 WSL 启动 Windows Android 模拟器并连接 ADB 的 CLI 工具。  
@@ -76,6 +76,7 @@ Windows のシステム環境変数として `ANDROID_HOME` を設定してく�
 ```
 
 **設定方法:**
+
 1. スタートメニュー > 「環境変数」で検索 > 「システム環境変数の編集」
 2. 「環境変数」ボタンをクリック
 3. 「システム変数」または「ユーザー変数」で「新規」をクリック
@@ -92,6 +93,7 @@ echo %ANDROID_HOME%
 Android Studio の Device Manager、またはコマンドラインで AVD を作成します。
 
 **Android Studio で作成:**
+
 1. `Tools > Device Manager` を開く
 2. 「Create Device」をクリック
 3. デバイス定義とシステムイメージを選択して作成
@@ -117,15 +119,18 @@ Android Studio の Device Manager、またはコマンドラインで AVD を作
 Android Emulator はハードウェア仮想化が必要です。
 
 **Intel CPU の場合:**
+
 - BIOS/UEFI で Intel VT-x を有効化
 - [Intel HAXM](https://github.com/intel/haxm) をインストール（Android Studio の SDK Manager からインストール可能）
 
 **AMD CPU の場合:**
+
 - BIOS/UEFI で AMD-V を有効化
 - Windows 10 以降では Hyper-V が自動的に使用されます
 
 **Windows 11 / Hyper-V:**
 Windows の機能として「Hyper-V」を有効化してください：
+
 1. 「コントロールパネル > プログラム > Windows の機能を有効化または無効化」
 2. 「Hyper-V」にチェック
 
@@ -153,18 +158,18 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 
 ### オプション
 
-| オプション | 説明 |
-|---|---|
-| `--avd <name>` | 起動するAVD名を指定（インタラクティブ選択をスキップ） |
-| `--no-wait` | ADB接続待機をスキップ |
+| オプション          | 説明                                                                        |
+| ------------------- | --------------------------------------------------------------------------- |
+| `--avd <name>`      | 起動するAVD名を指定（インタラクティブ選択をスキップ）                       |
+| `--no-wait`         | ADB接続待機をスキップ                                                       |
 | `--reverse <ports>` | 起動後に `adb reverse` を設定するポート（カンマ区切り、デフォルト: `8081`） |
-| `--skip-reverse` | `adb reverse` の自動設定をスキップ |
-| `--list` | AVD一覧を表示して終了 |
-| `--export-env` | `ANDROID_HOME` exportコマンドを出力（`eval`用） |
-| `--install-proxy` | `adb`/`emulator`プロキシを`~/.local/bin`にインストール |
-| `--install <apk>` | ローカルビルドしたAPKをエミュレーターにインストール（未接続なら起動） |
-| `-V, --version` | バージョンを表示 |
-| `-h, --help` | ヘルプを表示 |
+| `--skip-reverse`    | `adb reverse` の自動設定をスキップ                                          |
+| `--list`            | AVD一覧を表示して終了                                                       |
+| `--export-env`      | `ANDROID_HOME` exportコマンドを出力（`eval`用）                             |
+| `--install-proxy`   | `adb`/`emulator`プロキシを`~/.local/bin`にインストール                      |
+| `--install <apk>`   | ローカルビルドしたAPKをエミュレーターにインストール（未接続なら起動）       |
+| `-V, --version`     | バージョンを表示                                                            |
+| `-h, --help`        | ヘルプを表示                                                                |
 
 ### ローカルビルドしたAPKのインストール（--install）
 
@@ -187,12 +192,14 @@ wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
 WSL側で`ANDROID_HOME`が未設定の場合、Expo等が`Failed to resolve the Android SDK path`エラーを出します。
 
 **方法1: 一時的に設定**
+
 ```bash
 eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
 **方法2: 恒久的に設定**
+
 ```bash
 echo 'export ANDROID_HOME=/mnt/c/Android/Sdk' >> ~/.bashrc
 source ~/.bashrc
@@ -354,6 +361,7 @@ SDK Manager 可从 Android Studio 的 `Settings > Languages & Frameworks > Andro
 ```
 
 **设置方法:**
+
 1. 开始菜单 > 搜索「环境变量」> 「编辑系统环境变量」
 2. 点击「环境变量」按钮
 3. 在「系统变量」或「用户变量」中点击「新建」
@@ -370,6 +378,7 @@ echo %ANDROID_HOME%
 通过 Android Studio 的 Device Manager 或命令行创建 AVD。
 
 **通过 Android Studio 创建:**
+
 1. 打开 `Tools > Device Manager`
 2. 点击「Create Device」
 3. 选择设备定义和系统镜像创建
@@ -395,15 +404,18 @@ echo %ANDROID_HOME%
 Android Emulator 需要硬件虚拟化支持。
 
 **Intel CPU:**
+
 - 在 BIOS/UEFI 中启用 Intel VT-x
 - 安装 [Intel HAXM](https://github.com/intel/haxm)（可从 Android Studio 的 SDK Manager 安装）
 
 **AMD CPU:**
+
 - 在 BIOS/UEFI 中启用 AMD-V
 - Windows 10 及以上版本会自动使用 Hyper-V
 
 **Windows 11 / Hyper-V:**
 在 Windows 功能中启用「Hyper-V」：
+
 1. 「控制面板 > 程序 > 启用或关闭 Windows 功能」
 2. 勾选「Hyper-V」
 
@@ -431,18 +443,18 @@ ls -la /mnt/c/Android/Sdk/platform-tools/adb.exe
 
 ### 选项
 
-| 选项 | 说明 |
-|---|---|
-| `--avd <name>` | 指定要启动的 AVD 名称（跳过交互选择） |
-| `--no-wait` | 跳过 ADB 连接等待 |
+| 选项                | 说明                                                      |
+| ------------------- | --------------------------------------------------------- |
+| `--avd <name>`      | 指定要启动的 AVD 名称（跳过交互选择）                     |
+| `--no-wait`         | 跳过 ADB 连接等待                                         |
 | `--reverse <ports>` | 启动后设置 `adb reverse` 的端口（逗号分隔，默认: `8081`） |
-| `--skip-reverse` | 跳过 `adb reverse` 自动设置 |
-| `--list` | 显示 AVD 列表并退出 |
-| `--export-env` | 输出 `ANDROID_HOME` export 命令（用于 `eval`） |
-| `--install-proxy` | 将 `adb`/`emulator` 代理安装到 `~/.local/bin` |
-| `--install <apk>` | 安装本地构建的 APK 到模拟器（未连接时自动启动） |
-| `-V, --version` | 显示版本号 |
-| `-h, --help` | 显示帮助信息 |
+| `--skip-reverse`    | 跳过 `adb reverse` 自动设置                               |
+| `--list`            | 显示 AVD 列表并退出                                       |
+| `--export-env`      | 输出 `ANDROID_HOME` export 命令（用于 `eval`）            |
+| `--install-proxy`   | 将 `adb`/`emulator` 代理安装到 `~/.local/bin`             |
+| `--install <apk>`   | 安装本地构建的 APK 到模拟器（未连接时自动启动）           |
+| `-V, --version`     | 显示版本号                                                |
+| `-h, --help`        | 显示帮助信息                                              |
 
 ### 安装本地构建的 APK（--install）
 
@@ -465,12 +477,14 @@ wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
 如果 WSL 端未设置 `ANDROID_HOME`，Expo 等工具会报 `Failed to resolve the Android SDK path` 错误。
 
 **方法1：临时设置**
+
 ```bash
 eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
 **方法2：永久设置**
+
 ```bash
 echo 'export ANDROID_HOME=/mnt/c/Android/Sdk' >> ~/.bashrc
 source ~/.bashrc
@@ -632,6 +646,7 @@ Value: C:\Android\Sdk
 ```
 
 **How to set:**
+
 1. Start Menu > Search for "Environment Variables" > "Edit the system environment variables"
 2. Click "Environment Variables" button
 3. Under "System variables" or "User variables", click "New"
@@ -648,6 +663,7 @@ echo %ANDROID_HOME%
 Create an AVD via Android Studio's Device Manager or command line.
 
 **Create via Android Studio:**
+
 1. Open `Tools > Device Manager`
 2. Click "Create Device"
 3. Select device definition and system image to create
@@ -673,15 +689,18 @@ Create an AVD via Android Studio's Device Manager or command line.
 Android Emulator requires hardware virtualization support.
 
 **Intel CPU:**
+
 - Enable Intel VT-x in BIOS/UEFI
 - Install [Intel HAXM](https://github.com/intel/haxm) (available via Android Studio's SDK Manager)
 
 **AMD CPU:**
+
 - Enable AMD-V in BIOS/UEFI
 - Hyper-V is automatically used on Windows 10 and later
 
 **Windows 11 / Hyper-V:**
 Enable "Hyper-V" in Windows Features:
+
 1. "Control Panel > Programs > Turn Windows features on or off"
 2. Check "Hyper-V"
 
@@ -709,18 +728,18 @@ Detects Android SDK in the following order:
 
 ### Options
 
-| Option | Description |
-|---|---|
-| `--avd <name>` | Specify AVD name to launch (skip interactive selection) |
-| `--no-wait` | Skip ADB connection wait |
+| Option              | Description                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| `--avd <name>`      | Specify AVD name to launch (skip interactive selection)                               |
+| `--no-wait`         | Skip ADB connection wait                                                              |
 | `--reverse <ports>` | Ports to configure with `adb reverse` after launch (comma-separated, default: `8081`) |
-| `--skip-reverse` | Skip automatic `adb reverse` setup |
-| `--list` | List available AVDs and exit |
-| `--export-env` | Print `ANDROID_HOME` export command (for `eval`) |
-| `--install-proxy` | Install `adb`/`emulator` proxy scripts to `~/.local/bin` |
-| `--install <apk>` | Install a locally built APK to the emulator (launches emulator if none connected) |
-| `-V, --version` | Show version number |
-| `-h, --help` | Show help |
+| `--skip-reverse`    | Skip automatic `adb reverse` setup                                                    |
+| `--list`            | List available AVDs and exit                                                          |
+| `--export-env`      | Print `ANDROID_HOME` export command (for `eval`)                                      |
+| `--install-proxy`   | Install `adb`/`emulator` proxy scripts to `~/.local/bin`                              |
+| `--install <apk>`   | Install a locally built APK to the emulator (launches emulator if none connected)     |
+| `-V, --version`     | Show version number                                                                   |
+| `-h, --help`        | Show help                                                                             |
 
 ### Installing a Locally Built APK (--install)
 
@@ -743,12 +762,14 @@ wsl-avd --avd Pixel_4_API_28 --install ./app-release.apk
 If `ANDROID_HOME` is not set in WSL, tools like Expo will report `Failed to resolve the Android SDK path` error.
 
 **Method 1: Temporary setup**
+
 ```bash
 eval $(wsl-avd --export-env)
 npx expo run:android
 ```
 
 **Method 2: Permanent setup**
+
 ```bash
 echo 'export ANDROID_HOME=/mnt/c/Android/Sdk' >> ~/.bashrc
 source ~/.bashrc
